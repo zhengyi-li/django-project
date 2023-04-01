@@ -1,0 +1,120 @@
+---
+name: CI
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+env:
+  POETRY_VERSION: 1.3.2
+  INCLUDING_OWN_PROJECT: no
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout branch
+        id: checkout-branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: setup python and install dependencies
+        id: setup-python-and-install-dependencies
+        uses: ./.github/actions/setup_python_and_dependencies
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+          including-root: ${{ env.INCLUDING_OWN_PROJECT }}
+
+  format_and_lint:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - name: Checkout branch
+        id: checkout-branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: setup python and install dependencies
+        id: setup-python-and-install-dependencies
+        uses: ./.github/actions/setup_python_and_dependencies
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+          including-root: ${{ env.INCLUDING_OWN_PROJECT }}
+      - name: get-changed-python-files
+        id: get-changed-python-files
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            **/*.py
+      - name: format python files
+        id: format-python-files
+        if: steps.get-changed-python-files.outputs.all != ''
+        run: poetry run black ${{ steps.get-changed-python-files.outputs.all }}
+      - name: lint python files
+        id: lint-python-files
+        if: steps.get-changed-python-files.outputs.all != ''
+        run: poetry run ruff --fix ${{ steps.get-changed-python-files.outputs.all }}
+      - name: get-changed-yaml-files
+        id: get-changed-yaml-files
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            **/*.yaml
+            **/*.yml
+          files_ignore: |
+            **/cassettes/**
+      - name: format yaml files
+        id: format-yaml-files
+        if: steps.get-changed-yaml-files.outputs.all != ''
+        run: poetry run yamllint  ${{ steps.get-changed-yaml-files.outputs.all }}
+
+  test:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - name: Checkout branch
+        id: checkout-branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: setup python and install dependencies
+        id: setup-python-and-install-dependencies
+        uses: ./.github/actions/setup_python_and_dependencies
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+          including-root: ${{ env.INCLUDING_OWN_PROJECT }}
+      - name: test
+        id: test
+        run: poetry run pytest --cov-report=term-missing:skip-covered --cov=sentinel tests/ --junitxml=pytest.xml | tee pytest-coverage.txt
+      - name: Pytest coverage comment
+        id: pytest-coverage-comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest.xml
+      - name: Check the output coverage
+        id: check-the-output-coverage
+        run: |
+          echo "Coverage Percantage - ${{ steps.pytest-coverage-comment.outputs.coverage }}"
+          echo "Coverage Color - ${{ steps.pytest-coverage-comment.outputs.color }}"
+          echo "Coverage Html - ${{ steps.pytest-coverage-comment.outputs.coverageHtml }}"
+          echo "Coverage Warnings - ${{ steps.pytest-coverage-comment.outputs.warnings }}"
+          echo "Coverage Errors - ${{ steps.pytest-coverage-comment.outputs.errors }}"
+          echo "Coverage Failures - ${{ steps.pytest-coverage-comment.outputs.failures }}"
+          echo "Coverage Skipped - ${{ steps.pytest-coverage-comment.outputs.skipped }}"
+          echo "Coverage Tests - ${{ steps.pytest-coverage-comment.outputs.tests }}"
+          echo "Coverage Time - ${{ steps.pytest-coverage-comment.outputs.time }}"
+          echo "Not Success Test Info - ${{ steps.pytest-coverage-comment.outputs.notSuccessTestInfo }}"
+# need to follow instructions here to create a token and gist
+#      - name: Create the Badge
+#        uses: schneegans/dynamic-badges-action@v1.6.0
+#        with:
+#          auth: ${{ secrets.PYTEST_COVERAGE_COMMENT_GIST_TOKEN }}
+#          gistID: 0f68e74ba0f93d40d70ba6bf02fa7401
+#          filename: sentinel_test_coverage_badge.json
+#          label: Coverage Report
+#          message: ${{ steps.pytest-coverage-comment.outputs.coverage }}
+#          color: ${{ steps.pytest-coverage-comment.outputs.color }}
+#          namedLogo: python

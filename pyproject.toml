@@ -1,0 +1,143 @@
+[tool.poetry]
+name = "python-template-repo"
+version = "0.1.0"
+description = ""
+authors = ["libgy24 <lizhengyizak@gmail.com>"]
+readme = "README.md"
+packages = [{include = "python_template_repo"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.259"
+black = "^23.3.0"
+yamllint = "^1.30.0"
+pre-commit = "^3.2.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
+
+[tool.ruff]
+select = [
+    "ANN", # annotations
+    "B", # bugbear
+    "C4", # comprehensions
+    "D", # docstrings
+    "DTZ", # naive datetime
+    "E", # style errors
+    "EXE", # shebang
+    "F", # flakes
+    "G", # logging format
+    "I", # import sorting
+    "ISC", # string concatenation
+    "N", # naming
+    "PGH", # pygrep-hooks
+    "PIE", # miscellaneous
+    "PL", # pylint
+    "Q", # quotes
+    "RSE", # raise
+    "RUF", # Ruff
+    "S", # security
+    "SIM", # simplify
+    "T10", # debugger
+    "UP", # upgrade
+    "W", # style warnings
+    "YTT", # sys.version
+]
+ignore = [
+    "ANN101", # Missing type annotation for `self` in method
+    "ANN102", # Missing type annotation for `cls` in classmethod
+    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "B007", # Loop control variable not used within the loop body
+    "B008", # Do not perform function calls in argument defaults
+    "B023", # Function definition does not bind loop variable
+    "B904", # Within an except clause, raise exceptions with raise ... from err or raise ... from None to distinguish them from errors in exception handling
+    "C408", # Unnecessary `dict` call (rewrite as a literal)
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D205", # 1 blank line required between summary line and description
+    "D211", # No blank lines allowed before class docstring
+    "D212", # Multi-line docstring summary should start at the second line
+    "E402", # Module level import not at top of file
+    "E731", # Do not assign a lambda expression, use a def
+    "PLR0911", # Too many return statements
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments to function call
+    "PLR2004", # Magic value used in comparison
+    "PLR5501", # Consider using `elif` instead of `else` then `if` to remove one indentation level
+    "PLW0603", # Using the global statement is discouraged
+    "PLW2901", # Outer for loop variable overwritten by inner for loop target
+    "RUF001", # String contains ambiguous unicode character
+    "RUF002", # Docstring contains ambiguous unicode character
+    "RUF003", # Comment contains ambiguous unicode character
+    "S101", # Use of `assert` detected
+    "S105", # Possible hardcoded password
+    "S106", # Possible hardcoded password
+    "S107", # Possible hardcoded password
+    "S110", # `try`-`except`-`pass` detected, consider logging the exception
+    "S113", # Probable use of requests call without timeout
+    "S324", # Probable use of insecure hash functions in `hashlib`
+    "SIM103", # Return the condition directly
+    "SIM108", # Use ternary operator `action = "[commented]" if action == "created" else f"{action} a [comment]"` instead of if-else-block
+    "SIM114", # Combine `if` branches using logical `or` operator
+    "SIM117", # Use a single `with` statement with multiple contexts instead of nested `with` statements
+    "SIM401", # Use `d.get(key, default)` instead of an `if` block
+     "G004", # Logging statement uses f-string
+]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = [
+    "A", "ANN", "ARG", "B", "BLE", "C",
+    "COM", "D", "DTZ", "E", "EM", "ERA",
+    "EXE", "F", "FBT", "G", "I", "ICN",
+    "INP", "ISC", "N", "PD", "PGH", "PIE",
+    "PL", "PT", "PTH", "Q", "RET", "RUF",
+    "S", "SIM", "T", "TCH", "TID", "TRY",
+    "UP", "W", "YTT"
+]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "__pycache__",
+    "docs/source/conf.py",
+]
+
+# Same as Black.
+line-length = 79
+
+#[tool.ruff.per-file-ignores]
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 15
+
+#[tool.coverage]
+#    [tool.coverage.run]
+#    omit =

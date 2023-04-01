@@ -1,0 +1,12 @@
+---
+extends: default
+
+ignore:
+  - tests/cassettes/*
+
+
+rules:
+  line-length:
+    ignore:
+      - .github/*/*
+      - .pre-commit-config.yaml

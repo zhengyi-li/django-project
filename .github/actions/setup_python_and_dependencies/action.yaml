@@ -1,0 +1,72 @@
+---
+name: "build python package"
+description: "composite action to setup python and install dependencies"
+inputs:
+  poetry-version:
+    description: "poetry version to use"
+    required: true
+  including-root:
+    description: "whether to including your own project"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    # ----------------------------------------
+    #  Setup Python version env from .python-version
+    # ----------------------------------------
+    - name: Setup Python version env
+      id: setup-python-version-env
+      shell: bash
+      run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
+    # ----------------------------------------
+    #  Python version check
+    # ----------------------------------------
+    - name: python version check
+      id: python-version-check
+      shell: bash
+      run: echo ${{ env.PYTHON_VERSION }}
+    # ----------------------------------------
+    # Setup python
+    # ----------------------------------------
+    - name: Setup python ${{ env.PYTHON_VERSION }}
+      id: setup-python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    # ----------------------------------------
+    # Install and Configure Poetry
+    # ----------------------------------------
+    - name: Install and configure Poetry
+      id: install-poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ inputs.poetry-version }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+    # -----------------------------------------
+    # load cached venv if cache exists
+    # -----------------------------------------
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+    # -----------------------------------------
+    # install dependencies if cache does not exist
+    # -----------------------------------------
+    - name: Install Dependencies
+      id: install-dependencies
+      shell: bash
+      run: |
+        echo "${{ inputs.including-root }}"
+        if [ "${{ inputs.including-root }}" == "yes" ]; then
+          poetry install
+        elif [ "${{ inputs.including-root }}" == "no" ]; then
+          poetry install --no-root
+        else
+          echo "Error: Invalid value for include_root. It must be 'yes' or 'no'."
+          exit 1
+        fi
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
