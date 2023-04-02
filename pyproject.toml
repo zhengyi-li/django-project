@@ -1,13 +1,12 @@
 [tool.poetry]
-name = "python-template-repo"
+name = "django-practice"
 version = "0.1.0"
 description = ""
 authors = ["libgy24 <lizhengyizak@gmail.com>"]
 readme = "README.md"
-packages = [{include = "python_template_repo"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.11"
 django = "^4.1.7"
 
 
